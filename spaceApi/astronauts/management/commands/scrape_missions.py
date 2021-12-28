@@ -1,11 +1,13 @@
 from django.core.management.base import BaseCommand, CommandError
 from bs4 import BeautifulSoup
 import requests
-from astronauts.models import Mission, MissionImage
+from astronauts.models import Astronaut, Mission, MissionImage
 import tempfile
 import re
 
 from django.core import files
+
+from astronauts.utils import nationality_to_country
 
 def remove_wikipedia_link(s):
     return re.sub('\[.*?\]', '', s)
@@ -20,6 +22,77 @@ def getMissionLinks(url):
         links.append("https://en.wikipedia.org/" + link.get('href'))
 
     return links
+
+def getAstronautLinks(infobox_table):
+    members = infobox_table.find("th", text="Members").find_next_sibling("td") if infobox_table.find("th", text="Members") else []
+    member_links = members.find_all('a') if (len(members) > 0 and members.find_all('a')) else []
+    links = []
+
+    for link in member_links:
+        links.append("https://en.wikipedia.org/" + link.get('href'))
+
+    return links
+
+def scrape_astronaut_info(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, features="lxml")
+    wikipedia_url = url
+    toc = soup.find("div", {"class": "toc"})
+    brief = toc.find_previous_sibling("p").text if (toc and toc.find_previous_sibling("p")) else ""
+
+    infobox_table = soup.find('table', {"class": "infobox biography vcard"})
+    if infobox_table:
+        caption = infobox_table.find('th', {"class": "infobox-above"})
+        name = caption.find('div', {"class": "fn"}).text if (caption and caption.find('div')) else ""
+        birthdate = infobox_table.find("span", {"class": "bday"}).text if infobox_table.find("span", {"class": "bday"}) else ""
+        print(f"  > Astronaut: {name}, {birthdate}")
+        active_duty = infobox_table.find("th", text="Status").find_next_sibling("td").text == "Active" if infobox_table.find("th", text="Status") else None
+        total_evas = infobox_table.find("th", text="Total EVAs").find_next_sibling("td").text if infobox_table.find("th", text="Total EVAs") else "0"
+        total_eva_time = infobox_table.find("th", text="Total EVA time").find_next_sibling("td").text if infobox_table.find("th", text="Total EVA time") else "0"
+        time_in_space = infobox_table.find("th", text="Time in space").find_next_sibling("td").text if infobox_table.find("th", text="Time in space") else "0"
+        selection = infobox_table.find("th", text="Selection").find_next_sibling("td").text if infobox_table.find("th", text="Selection") else ""
+        occupation = infobox_table.find("th", text="Occupation").find_next_sibling("td").text if infobox_table.find("th", text="Occupation") else ""
+        rank = infobox_table.find("th", text="Rank").find_next_sibling("td").text if infobox_table.find("th", text="Rank") else ""
+        country = nationality_to_country(infobox_table.find("th", text="Nationality").find_next_sibling("td").text) if infobox_table.find("th", text="Nationality") else ""
+        obj, created = Astronaut.objects.update_or_create(
+            name=name,
+            defaults={
+                "wikipedia_url": wikipedia_url,
+                "brief": remove_wikipedia_link(brief),
+                "name" : remove_wikipedia_link(name),
+                "birthdate" : remove_wikipedia_link(birthdate),
+                "active_duty" : active_duty,
+                "total_evas" : total_evas,
+                "country": country,
+                "total_eva_time" : remove_wikipedia_link(total_eva_time),
+                "time_in_space" : remove_wikipedia_link(time_in_space),
+                "selection" : remove_wikipedia_link(selection),
+                "occupation" : remove_wikipedia_link(occupation),
+                "rank" : remove_wikipedia_link(rank),
+            }
+        )
+
+        # download image
+        image = infobox_table.find('img')
+        if image:
+            r = requests.get("https:"+image.get('src'))
+            if r.status_code == requests.codes.ok:
+                file_name = image.get('alt')
+                # Create a temporary file
+                lf = tempfile.NamedTemporaryFile()
+
+                # Read the streamed image in sections
+                for block in r.iter_content(1024 * 8):
+                    # If no more file then stop
+                    if not block:
+                        break
+
+                    # Write image block to temporary file
+                    lf.write(block)
+
+                # Save the temporary image to the model#
+                # This saves the model so be sure that it is valid
+                obj.photo.save(file_name, files.File(lf))
 
 def scrape_mission_info(url):
     response = requests.get(url)
@@ -87,6 +160,12 @@ def scrape_mission_info(url):
                 # Save the temporary image to the model#
                 # This saves the model so be sure that it is valid
                 obj.photo.save(file_name, files.File(lf))
+
+        # follow astronaut page links from mission page
+        astronaut_links = getAstronautLinks(infobox_table)
+
+        for a in astronaut_links:
+            scrape_astronaut_info(a)
 
 class Command(BaseCommand):
 
