@@ -30,20 +30,21 @@ class AstronautImage(models.Model):
         return self.astronaut.name
 
 class Mission(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255)
     brief = models.TextField(blank=False, default="")
     photo = models.ImageField(upload_to="missions/", blank=True)
-    type = models.CharField(max_length=255)
-    cospar_id = models.CharField(max_length=255)
-    satcat_no = models.CharField(max_length=255)
-    duration = models.DurationField()
-    distance_traveled = models.IntegerField(default=0)
-    total_evas = models.IntegerField(default=0)
-    total_eva_time = models.IntegerField(default=0)
-    start_date = models.DateTimeField(blank=False)
-    end_date = models.DateTimeField(blank=False)
-    launch_site  = models.CharField(max_length=255)
-    landing_site = models.CharField(max_length=255)
+    type = models.CharField(max_length=255, default="")
+    cospar_id = models.CharField(max_length=255, default="")
+    satcat_no = models.CharField(max_length=255, default="")
+    operator = models.CharField(max_length=255, default="")
+    duration = models.CharField(max_length=255, default="")
+    distance_traveled = models.CharField(max_length=255, default="")
+    total_evas = models.CharField(max_length=255, default="")
+    total_eva_time = models.CharField(max_length=255, default="")
+    start_date = models.CharField(max_length=255, default="")
+    end_date = models.CharField(max_length=255, default="")
+    launch_site  = models.CharField(max_length=255, default="")
+    landing_site = models.CharField(max_length=255, default="")
     wikipedia_url = models.URLField(null=False, default="")
 
 class MissionImage(models.Model):

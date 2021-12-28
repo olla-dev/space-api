@@ -102,6 +102,9 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+
+# django
+media/
 .env
 .venv
 env/
