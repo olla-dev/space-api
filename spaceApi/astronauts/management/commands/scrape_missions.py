@@ -76,6 +76,8 @@ def scrape_astronaut_info(url):
         image = infobox_table.find('img')
         if image:
             download_image_to_model("https:"+image.get('src'), image.get('alt'), obj)
+        return obj
+    return None
 
 def scrape_mission_info(url):
     response = requests.get(url)
@@ -131,7 +133,9 @@ def scrape_mission_info(url):
         astronaut_links = getAstronautLinks(infobox_table)
 
         for a in astronaut_links:
-            scrape_astronaut_info(a)
+            astronaut = scrape_astronaut_info(a)
+            if astronaut:
+                astronaut.missions.add(obj)
 
 class Command(BaseCommand):
 
