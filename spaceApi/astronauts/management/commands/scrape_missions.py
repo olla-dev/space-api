@@ -7,7 +7,7 @@ import re
 
 from django.core import files
 
-from astronauts.utils import nationality_to_country
+from astronauts.utils import download_image_to_model, nationality_to_country
 
 def remove_wikipedia_link(s):
     return re.sub('\[.*?\]', '', s)
@@ -75,24 +75,7 @@ def scrape_astronaut_info(url):
         # download image
         image = infobox_table.find('img')
         if image:
-            r = requests.get("https:"+image.get('src'))
-            if r.status_code == requests.codes.ok:
-                file_name = image.get('alt')
-                # Create a temporary file
-                lf = tempfile.NamedTemporaryFile()
-
-                # Read the streamed image in sections
-                for block in r.iter_content(1024 * 8):
-                    # If no more file then stop
-                    if not block:
-                        break
-
-                    # Write image block to temporary file
-                    lf.write(block)
-
-                # Save the temporary image to the model#
-                # This saves the model so be sure that it is valid
-                obj.photo.save(file_name, files.File(lf))
+            download_image_to_model("https:"+image.get('src'), image.get('alt'), obj)
 
 def scrape_mission_info(url):
     response = requests.get(url)
@@ -142,24 +125,7 @@ def scrape_mission_info(url):
         # download image
         image = infobox_table.find('img')
         if image:
-            r = requests.get("https:"+image.get('src'))
-            if r.status_code == requests.codes.ok:
-                file_name = image.get('alt')
-                # Create a temporary file
-                lf = tempfile.NamedTemporaryFile()
-
-                # Read the streamed image in sections
-                for block in r.iter_content(1024 * 8):
-                    # If no more file then stop
-                    if not block:
-                        break
-
-                    # Write image block to temporary file
-                    lf.write(block)
-
-                # Save the temporary image to the model#
-                # This saves the model so be sure that it is valid
-                obj.photo.save(file_name, files.File(lf))
+            download_image_to_model("https:"+image.get('src'), image.get('alt'), obj)
 
         # follow astronaut page links from mission page
         astronaut_links = getAstronautLinks(infobox_table)
