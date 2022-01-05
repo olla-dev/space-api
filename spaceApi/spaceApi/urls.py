@@ -15,9 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from rest_framework import routers
+from django.urls.conf import include
 from django.conf.urls.static import static
+from astronauts.views import AstronautViewSet, MissionViewSet
 from spaceApi.settings import MEDIA_URL, MEDIA_ROOT
+
+
+router = routers.DefaultRouter()
+router.register(r'astronauts', AstronautViewSet, basename='astronauts')
+router.register(r'missions', MissionViewSet, basename= 'missions')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

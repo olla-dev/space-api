@@ -23,6 +23,7 @@ class Astronaut(models.Model):
     def __str__(self):
         return self.name
 
+# Unused for now
 class AstronautImage(models.Model):
     astronaut = models.ForeignKey(Astronaut, default=None, on_delete=models.CASCADE)
     images = models.FileField(upload_to = 'images/')
@@ -51,6 +52,7 @@ class Mission(models.Model):
     def __str__(self):
         return self.name
 
+# Unused for now
 class MissionImage(models.Model):
     mission = models.ForeignKey(Mission, default=None, on_delete=models.CASCADE)
     images = models.FileField(upload_to = 'images/')
