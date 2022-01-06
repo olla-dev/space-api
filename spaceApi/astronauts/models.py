@@ -1,13 +1,13 @@
 from django.db import models
-from django.db.models.fields import DateField, DurationField
 from django_countries.fields import CountryField
+import json
 
 class Astronaut(models.Model):
     name = models.CharField(max_length=255, default="")
     brief = models.TextField(blank=False, default="")
     birthdate = models.CharField(max_length=255, blank=True, null=True)
     death = models.CharField(max_length=255, blank=True, null=True)
-    country = CountryField(multiple=True)
+    countries = models.CharField(max_length=255, default=json.dumps("[]"))
     active_duty = models.BooleanField(default=False, null=True)
     time_in_space = models.CharField(max_length=255, blank=True, null=True)
     total_evas = models.IntegerField(default=0)
@@ -22,6 +22,12 @@ class Astronaut(models.Model):
 
     def __str__(self):
         return self.name
+
+    def set_countries(self, c):
+        self.countries = json.dumps(c)
+
+    def get_countries(self):
+        return json.loads(self.countries)
 
 # Unused for now
 class AstronautImage(models.Model):
@@ -48,6 +54,8 @@ class Mission(models.Model):
     launch_site  = models.CharField(max_length=255, default="")
     landing_site = models.CharField(max_length=255, default="")
     wikipedia_url = models.URLField(null=False, default="")
+    crew = models.ManyToManyField(Astronaut, through=Astronaut.missions.through, blank=True)
+
 
     def __str__(self):
         return self.name

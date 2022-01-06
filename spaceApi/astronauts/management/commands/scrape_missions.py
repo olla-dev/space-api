@@ -2,10 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from bs4 import BeautifulSoup
 import requests
 from astronauts.models import Astronaut, Mission, MissionImage
-import tempfile
 import re
-
-from django.core import files
 
 from astronauts.utils import download_image_to_model, nationality_to_country
 
@@ -53,7 +50,7 @@ def scrape_astronaut_info(url):
         selection = infobox_table.find("th", text="Selection").find_next_sibling("td").text if infobox_table.find("th", text="Selection") else ""
         occupation = infobox_table.find("th", text="Occupation").find_next_sibling("td").text if infobox_table.find("th", text="Occupation") else ""
         rank = infobox_table.find("th", text="Rank").find_next_sibling("td").text if infobox_table.find("th", text="Rank") else ""
-        country = nationality_to_country(infobox_table.find("th", text="Nationality").find_next_sibling("td").text) if infobox_table.find("th", text="Nationality") else ""
+        countries = nationality_to_country(infobox_table.find("th", text="Nationality").find_next_sibling("td").text) if infobox_table.find("th", text="Nationality") else []
         obj, created = Astronaut.objects.update_or_create(
             name=name,
             defaults={
@@ -63,7 +60,7 @@ def scrape_astronaut_info(url):
                 "birthdate" : remove_wikipedia_link(birthdate),
                 "active_duty" : active_duty,
                 "total_evas" : total_evas,
-                "country": country,
+                "countries": countries,
                 "total_eva_time" : remove_wikipedia_link(total_eva_time),
                 "time_in_space" : remove_wikipedia_link(time_in_space),
                 "selection" : remove_wikipedia_link(selection),
