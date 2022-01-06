@@ -18,7 +18,7 @@ from django.urls import path
 from rest_framework import routers
 from django.urls.conf import include
 from django.conf.urls.static import static
-from astronauts.views import AstronautViewSet, MissionViewSet, vue_test
+from astronauts.views import AstronautViewSet, MissionViewSet, index
 from spaceApi.settings import MEDIA_URL, MEDIA_ROOT
 
 
@@ -29,5 +29,5 @@ router.register(r'missions', MissionViewSet, basename= 'missions')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('test', vue_test),
+    path('', index),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

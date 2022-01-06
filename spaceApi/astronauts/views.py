@@ -13,5 +13,5 @@ class MissionViewSet(viewsets.ModelViewSet):
     serializer_class = MissionSerializer
     http_method_names = ['get']
 
-def vue_test(request):
+def index(request):
     return render(request, 'index.html')
