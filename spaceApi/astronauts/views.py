@@ -12,3 +12,6 @@ class MissionViewSet(viewsets.ModelViewSet):
     queryset = Mission.objects.all()
     serializer_class = MissionSerializer
     http_method_names = ['get']
+
+def vue_test(request):
+    return render(request, 'index.html')
