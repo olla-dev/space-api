@@ -13,6 +13,22 @@
 export default {
   name: 'Home',
   components: {
-  }
+  },
+	computed: {
+		missions: {
+			get() {
+				return this.$store.state.missions.data
+			},
+		},
+		loadingMissions: {
+			get() {
+				return this.$store.state.missions.loading
+			},
+		},
+	},
+	mounted() {
+		this.selectedMission = null
+		this.$store.dispatch('missions/fetchMissions')
+	},
 }
 </script>
