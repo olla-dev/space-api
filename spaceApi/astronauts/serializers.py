@@ -1,6 +1,5 @@
 from rest_framework import serializers
 import json
-from django_countries.serializers import CountryFieldMixin
 from .models import Astronaut, Mission
 
 class MissionBaseSerializer(serializers.HyperlinkedModelSerializer):

@@ -56,6 +56,8 @@ class Mission(models.Model):
     wikipedia_url = models.URLField(null=False, default="")
     crew = models.ManyToManyField(Astronaut, through=Astronaut.missions.through, blank=True)
 
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return self.name

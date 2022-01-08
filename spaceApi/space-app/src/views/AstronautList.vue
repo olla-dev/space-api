@@ -17,15 +17,22 @@ export default {
 				return this.$store.state.astronauts.data
 			},
 		},
-		loadingastronauts: {
+		loadingAstronauts: {
 			get() {
 				return this.$store.state.astronauts.loading
 			},
 		},
 	},
 	mounted() {
-		this.selectedAstronaut = null
-		this.$store.dispatch('astronauts/fetchAstronauts')
+		this.getAstronauts(this.currentPage)
 	},
+	methods: {
+		getAstronauts(page = 1) {
+			this.selectedAstronaut = null
+			this.$store.dispatch('astronauts/fetchAstronauts', {
+				page: page
+			})
+		}
+	}
 }
 </script>
