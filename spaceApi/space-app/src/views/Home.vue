@@ -6,20 +6,35 @@
         <p>total missions: {{count}}</p>
 	</div>
 	<div>
-		<PaginationLinks
-			v-if="!loadingMissions"
-			cls="pagination justify-content-end"
-			:current="currentPage"
-			:totalPages="totalPages"
-			@pagechanged="getMissions" />
+		<div class="row">
+			<div class="col-3">
+				<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+			</div>
+			<div class="col-9">
+				<PaginationLinks
+					v-if="!loadingMissions"
+					cls="pagination justify-content-end"
+					:current="currentPage"
+					:totalPages="totalPages"
+					@pagechanged="getMissions" />
+			</div>
+		</div>
+		
 
-		<div class="card" v-for="m in missions" v-bind:key="m.id">
+		<div class="card mission-card" v-for="m in missions" v-bind:key="m.id">
 			<div class="card-header">
-				{{m.name}}
+				<a :href="m.wikipedia_url" target='_blank'>{{m.name}}</a>
 			</div>
 			<div class="card-body">
-				<img :src="m.photo" />
-				<p class="card-text">{{m.brief}}</p>
+				<div class="row">
+					<div class="col-sm-3">
+						<img :src="m.photo" v-if="m.photo" />
+						<img src="@/assets/rocket.png" v-else />
+					</div>
+					<div class="col-sm-9">
+						<p class="card-text">{{m.brief}}</p>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -82,3 +97,9 @@ export default {
 	}
 }
 </script>
+
+<style lang="css">
+.mission-card {
+	margin-bottom: 5px;
+}
+</style>
