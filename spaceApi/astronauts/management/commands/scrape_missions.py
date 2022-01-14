@@ -34,8 +34,11 @@ def scrape_astronaut_info(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, features="lxml")
     wikipedia_url = url
-    toc = soup.find("div", {"class": "toc"})
-    brief = toc.find_previous_sibling("p").text if (toc and toc.find_previous_sibling("p")) else ""
+
+    # credits: https://levelup.gitconnected.com/two-simple-ways-to-scrape-text-from-wikipedia-in-python-9ce07426579b
+    brief = ""
+    for paragraph in soup.find_all('p'):
+        brief += paragraph.text + " \n\n\n\n"
 
     infobox_table = soup.find('table', {"class": "infobox biography vcard"})
     if infobox_table:
@@ -80,8 +83,11 @@ def scrape_mission_info(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, features="lxml")
     wikipedia_url = url
-    toc = soup.find("div", {"class": "toc"})
-    brief = toc.find_previous_sibling("p").text if (toc and toc.find_previous_sibling("p")) else ""
+    
+    # credits: https://levelup.gitconnected.com/two-simple-ways-to-scrape-text-from-wikipedia-in-python-9ce07426579b
+    brief = ""
+    for paragraph in soup.find_all('p'):
+        brief += paragraph.text
 
     infobox_table = soup.find('table', {"class": "infobox"})
     if infobox_table:
